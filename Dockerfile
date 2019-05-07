@@ -3,6 +3,10 @@ MAINTAINER Luke
 
 ENV PYTHONUNBUFFERED 1
 
+# Temp Workaround for DNS issue
+#RUN echo http://nl.alpinelinux.org/alpine/v3.9/main > /etc/apk/repositories; \
+# echo http://nl.alpinelinux.org/alpine/v3.9/community >> /etc/apk/repositories
+
 # Install dependencies
 COPY ./requirements.txt /requirements.txt
 RUN apk add --update --no-cache postgresql-client
