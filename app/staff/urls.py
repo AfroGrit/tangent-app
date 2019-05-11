@@ -6,6 +6,8 @@ from staff import views
 
 router = DefaultRouter()
 router.register('tags', views.TagViewSet)
+router.register('department', views.DepartmentViewSet)
+
 
 app_name = 'staff'
 
