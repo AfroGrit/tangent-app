@@ -2,7 +2,7 @@ from rest_framework import viewsets, mixins
 from rest_framework.authentication import TokenAuthentication
 from rest_framework.permissions import IsAuthenticated
 
-from core.models import Tag, Department
+from core.models import Tag, Department, Employee
 
 from staff import serializers
 
@@ -42,3 +42,15 @@ class DepartmentViewSet(viewsets.GenericViewSet,
     def perform_create(self, serializer):
         """Create a new ingredient"""
         serializer.save(user=self.request.user)
+
+
+class EmployeeViewSet(viewsets.ModelViewSet):
+    """Manage Employee in the database"""
+    serializer_class = serializers.EmployeeSerializer
+    queryset = Employee.objects.all()
+    authentication_classes = (TokenAuthentication,)
+    permission_classes = (IsAuthenticated,)
+
+    def get_queryset(self):
+        """Retrieve the Employee for the authenticated user"""
+        return self.queryset.filter(user=self.request.user)
