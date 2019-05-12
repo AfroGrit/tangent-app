@@ -157,3 +157,39 @@ class PrivateEmployeeApiTests(TestCase):
         self.assertEqual(department.count(), 2)
         self.assertIn(dept1, department)
         self.assertIn(dept2, department)
+
+    def test_partial_update_employee(self):
+        """Test updating an employee with patch"""
+        employee = sample_employee(user=self.user)
+        employee.tags.add(sample_tag(user=self.user))
+        new_tag = sample_tag(user=self.user, name='brewer')
+
+        payload = {'title': 'Run for charity', 'tags': [new_tag.id]}
+        url = detail_url(employee.id)
+        self.client.patch(url, payload)
+
+        employee.refresh_from_db()
+        self.assertEqual(employee.title, payload['title'])
+        tags = employee.tags.all()
+        self.assertEqual(len(tags), 1)
+        self.assertIn(new_tag, tags)
+
+    def test_full_update_employee(self):
+        """Test updating an employee with put"""
+        employee = sample_employee(user=self.user)
+        employee.tags.add(sample_tag(user=self.user))
+
+        payload = {
+            'title': 'Monster Maker',
+            'experience': 25,
+            'salary': 5.00
+        }
+        url = detail_url(employee.id)
+        self.client.put(url, payload)
+
+        employee.refresh_from_db()
+        self.assertEqual(employee.title, payload['title'])
+        self.assertEqual(employee.experience, payload['experience'])
+        self.assertEqual(employee.salary, payload['salary'])
+        tags = employee.tags.all()
+        self.assertEqual(len(tags), 0)
