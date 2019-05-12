@@ -12,7 +12,7 @@ class TagSerializer(serializers.ModelSerializer):
 
 
 class DepartmentSerializer(serializers.ModelSerializer):
-    """Serializer for an ingredient object"""
+    """Serializer for an dept object"""
 
     class Meta:
         model = Department
@@ -21,7 +21,7 @@ class DepartmentSerializer(serializers.ModelSerializer):
 
 
 class EmployeeSerializer(serializers.ModelSerializer):
-    """Serialize a recipe"""
+    """Serialize an Employee"""
     department = serializers.PrimaryKeyRelatedField(
         many=True,
         queryset=Department.objects.all()
@@ -40,3 +40,9 @@ class EmployeeSerializer(serializers.ModelSerializer):
             'experience', 'salary', 'link',
         )
         read_only_fields = ('id',)
+
+
+class EmployeeDetailSerializer(EmployeeSerializer):
+    """ Serialize employee details"""
+    department = DepartmentSerializer(many=True, read_only=True)
+    tags = TagSerializer(many=True, read_only=True)
