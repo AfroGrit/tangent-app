@@ -50,7 +50,7 @@ class Tag(models.Model):
 
 
 class Department(models.Model):
-    """Department to be used """
+    """ Department to be used """
     name = models.CharField(max_length=255)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -59,3 +59,21 @@ class Department(models.Model):
 
     def __str__(self):
         return self.name
+
+
+class Employee(models.Model):
+    """ Employee object """
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE
+    )
+
+    title = models.CharField(max_length=255)
+    experience = models.IntegerField()
+    salary = models.DecimalField(max_digits=5, decimal_places=2)
+    link = models.CharField(max_length=255, blank=True)
+    department = models.ManyToManyField('Department')
+    tags = models.ManyToManyField('Tag')
+
+    def __str__(self):
+        return self.title

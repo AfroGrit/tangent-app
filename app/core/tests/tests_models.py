@@ -62,3 +62,14 @@ class ModelTests(TestCase):
         )
 
         self.assertEqual(str(department), department.name)
+
+    def test_employee_str(self):
+        """Test the employee string representation"""
+        employee = models.Employee.objects.create(
+            user=sample_user(),
+            title='Story teller',
+            experience=5,
+            salary=50.00
+        )
+
+        self.assertEqual(str(employee), employee.title)
