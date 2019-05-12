@@ -27,7 +27,7 @@ class PublicDepartmentApiTests(TestCase):
 
 
 class PrivateDepartmentAPITests(TestCase):
-    """Test ingredients can be retrieved by authorized user"""
+    """Test department can be retrieved by authorized user"""
 
     def setUp(self):
         self.client = APIClient()
@@ -38,7 +38,7 @@ class PrivateDepartmentAPITests(TestCase):
         self.client.force_authenticate(self.user)
 
     def test_retrieve_department_list(self):
-        """Test retrieving a list of ingredients"""
+        """Test retrieving a list of department"""
         Department.objects.create(user=self.user, name='research')
         Department.objects.create(user=self.user, name='design')
 
@@ -50,7 +50,7 @@ class PrivateDepartmentAPITests(TestCase):
         self.assertEqual(res.data, serializer.data)
 
     def test_department_limited_to_user(self):
-        """Test that only ingredients for authenticated user are returned"""
+        """Test that only department for authenticated user are returned"""
         user2 = get_user_model().objects.create_user(
             'other@tangent.com',
             'testpass'
@@ -64,3 +64,21 @@ class PrivateDepartmentAPITests(TestCase):
         self.assertEqual(res.status_code, status.HTTP_200_OK)
         self.assertEqual(len(res.data), 1)
         self.assertEqual(res.data[0]['name'], department.name)
+
+    def test_create_department_successful(self):
+        """Test creating a new department"""
+        payload = {'name': 'rejects'}
+        self.client.post(DEPARTMENT_URL, payload)
+
+        exists = Department.objects.filter(
+            user=self.user,
+            name=payload['name']
+        ).exists()
+        self.assertTrue(exists)
+
+    def test_create_department_invalid(self):
+        """Test creating invalid department fails"""
+        payload = {'name': ''}
+        res = self.client.post(DEPARTMENT_URL, payload)
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
