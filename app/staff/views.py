@@ -61,3 +61,7 @@ class EmployeeViewSet(viewsets.ModelViewSet):
             return serializers.EmployeeDetailSerializer
 
         return self.serializer_class
+
+    def perform_create(self, serializer):
+        """ Create a new employee"""
+        serializer.save(user=self.request.user)
