@@ -46,3 +46,12 @@ class EmployeeDetailSerializer(EmployeeSerializer):
     """ Serialize employee details"""
     department = DepartmentSerializer(many=True, read_only=True)
     tags = TagSerializer(many=True, read_only=True)
+
+
+class EmployeeImageSerializer(serializers.ModelSerializer):
+    """Serializer for uploading images to employees"""
+
+    class Meta:
+        model = Employee
+        fields = ('id', 'image')
+        read_only_fields = ('id',)

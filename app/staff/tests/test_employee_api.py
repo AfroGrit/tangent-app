@@ -1,3 +1,7 @@
+import tempfile
+import os
+from PIL import Image
+
 from django.contrib.auth import get_user_model
 from django.test import TestCase
 from django.urls import reverse
@@ -11,6 +15,11 @@ from staff.serializers import EmployeeSerializer, EmployeeDetailSerializer
 
 
 EMPLOYEE_URL = reverse('staff:employee-list')
+
+
+def image_upload_url(employee_id):
+    """Return URL for employee image upload"""
+    return reverse('staff:employee-upload-image', args=[employee_id])
 
 
 def detail_url(employee_id):
@@ -193,3 +202,39 @@ class PrivateEmployeeApiTests(TestCase):
         self.assertEqual(employee.salary, payload['salary'])
         tags = employee.tags.all()
         self.assertEqual(len(tags), 0)
+
+
+class EmployeeImageUploadTests(TestCase):
+
+    def setUp(self):
+        self.client = APIClient()
+        self.user = get_user_model().objects.create_user(
+            'test@tangent.com',
+            'testpass'
+        )
+        self.client.force_authenticate(self.user)
+        self.employee = sample_employee(user=self.user)
+
+    def tearDown(self):
+        self.employee.image.delete()
+
+    def test_upload_image_to_employee(self):
+        """Test uploading an image to recipe"""
+        url = image_upload_url(self.employee.id)
+        with tempfile.NamedTemporaryFile(suffix='.jpg') as ntf:
+            img = Image.new('RGB', (10, 10))
+            img.save(ntf, format='JPEG')
+            ntf.seek(0)
+            res = self.client.post(url, {'image': ntf}, format='multipart')
+
+        self.employee.refresh_from_db()
+        self.assertEqual(res.status_code, status.HTTP_200_OK)
+        self.assertIn('image', res.data)
+        self.assertTrue(os.path.exists(self.employee.image.path))
+
+    def test_upload_image_bad_request(self):
+        """Test uploading an invalid image"""
+        url = image_upload_url(self.employee.id)
+        res = self.client.post(url, {'image': 'notimage'}, format='multipart')
+
+        self.assertEqual(res.status_code, status.HTTP_400_BAD_REQUEST)
